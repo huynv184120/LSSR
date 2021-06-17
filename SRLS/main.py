@@ -39,16 +39,21 @@ CreateGraph('.\data\\abilene_tm_node.csv','.\data\\abilene_tm_edge.csv')
 
 # shortest path
 stPathDisc = {}
+stPath = []
 def toKey(u , v):
     return str(u) + ' ' + str(v)
 
 for u in G.nodes:
+    A = []
     for v in G.nodes:
         stPathDisc[toKey(u,v)] = list(nx.all_shortest_paths(G, u , v ))
-
-A = CaculateTree([[1,2],[3,2],[2,2],[4,2]])
-A.addNode(5,1)
-A.showInfor()
-A.delete(3)
-A.delete(5)
-A.showInfor()
+        A.append( list(nx.all_shortest_paths(G, u , v )))
+    stPath.append(A)
+print(stPath)
+print(stPathDisc.items())
+# A = CaculateTree([[1,2],[3,2],[2,2],[4,2]])
+# A.addNode(5,1)
+# A.showInfor()
+# A.delete(3)
+# A.delete(5)
+# A.showInfor()
