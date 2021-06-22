@@ -121,7 +121,7 @@ class CaculateTree:
     def __init__(self, arr = None):
         self.dict1 = {}
         self.dict2 = {}
-        self.size = 4
+        self.size = 8
         self.n = 0
         self.arr = np.zeros(self.size*2)
         if arr != None:
@@ -137,6 +137,11 @@ class CaculateTree:
             self.arr[index] += denta
             index = int(index / 2)
     
+    def nodeExist(node):
+        return node in self.dict1
+
+    def getValueNode(node):
+        return self.arr[self.dict1[node]]
 
     def addNode(self, node, nodeValue):
         if self.n == self.size :
@@ -144,6 +149,9 @@ class CaculateTree:
             arr1 = np.copy(self.arr)
             self.arr = np.zeros(self.size*2)
             self.n = 0
+            self.dict1 = {}
+            self.dict2 = {}
+
             for k in self.dict1:
                 self.addNode(k, arr1[self.dict1.get(k)])
             
@@ -161,6 +169,7 @@ class CaculateTree:
         self.setWeightNode(node1 , 0)
         self.dict1[node1] = self.dict1[node]
         self.dict2[k] = node1
+        self.dict1.pop(node)
         self.n -= 1
 
     def select(self):
@@ -175,7 +184,23 @@ class CaculateTree:
 
     def showInfor(self):
         print(self.arr)
-
-
         
+    def resetValues(self):
+        for i in range(self.n):
+            self.arr[i] = 0
+
+    def removeAllNodes(self):
+        self.resetValues()
+        self.n = 0
+        self.dict1 = {}
+        self.dict2 = {}
+        
+    
+class ShortestPaths:
+    def __init__(self, paths):
+        self.paths = paths
+    
+    def scPath(self, u, v):
+        return self.paths[u][v]
+
 

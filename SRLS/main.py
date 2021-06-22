@@ -2,12 +2,17 @@ from os import close
 import csv
 import networkx as nx
 import numpy as np
+import math
+import random as rd
+
 from MyStructures import *
 
 G = nx.DiGraph()
+capas = []
+nNodes = 0 # number node
+nEdges = 0 # number edge
+dictEdges = {}
 
-n = 0 # number node
-m = 0 # number edge
 def CreateGraph(path1, path2):
     with open(path1)as f:
         InFNodes = csv.reader(f)
@@ -17,8 +22,9 @@ def CreateGraph(path1, path2):
                 row = str.split(row[0])
                 k = int(row[0].split('_')[0])
                 G.add_nodes_from([(k, {'label' : row[0], 'x' : float(row[1]), 'y' : float(row[2])})])
-            line =+ 1
-        n = line - 1
+            line += 1
+            nNodes = line -1
+
     
     with open(path2)as f:
         InFNodes = csv.reader(f)
@@ -33,27 +39,78 @@ def CreateGraph(path1, path2):
                 G.edges[u ,v]['label'] = row[0]
                 G.edges[u ,v]['bw'] = float(row[4])
                 G.edges[u ,v]['delay'] = float(row[5])
-            line =+ 1
-        m = line - 1
+                G.edges[u, v]['index'] = nEdges
+                dictEdges[nEdges] = [u,v]
+                capas.append(float(row[4]))
+                
+            line += 1
+            nEdges = line - 1
+
 CreateGraph('.\data\\abilene_tm_node.csv','.\data\\abilene_tm_edge.csv')
 
-# shortest path
-stPathDisc = {}
-stPath = []
-def toKey(u , v):
-    return str(u) + ' ' + str(v)
 
+
+mainTree = None
+subTree = []
+loads = np.zeros(nEdges)
+util = np.zeros(nEdges)
+capas = np.array(capas)
+
+
+stPath = []
 for u in G.nodes:
     A = []
     for v in G.nodes:
-        stPathDisc[toKey(u,v)] = list(nx.all_shortest_paths(G, u , v ))
         A.append( list(nx.all_shortest_paths(G, u , v )))
     stPath.append(A)
-print(stPath)
-print(stPathDisc.items())
-# A = CaculateTree([[1,2],[3,2],[2,2],[4,2]])
-# A.addNode(5,1)
-# A.showInfor()
-# A.delete(3)
-# A.delete(5)
-# A.showInfor()
+sp = ShortestPaths(stPath)
+
+def init():
+    mainTree = CaculateTree(range(nEdges))
+    for i in range(nEdges):
+        subTree.append(CaculateTree())
+
+def metaWeight(w, beta):
+    return w**beta
+
+def flowCompute(u , v, bw , demandIndex):
+    paths = sp.scPath(u,v)
+    numSubPaths = len(paths)
+    subBw = bw/numSubPaths
+    for path in paths:
+        for i in range(len(path)-1):
+            k = G.edges[path[i]][path[i+1]]
+            loads[k] += subBw
+            util[k] = loads[k]/capas[k]
+            mainTree.setWeightNode(metaWeight(util[k],64))
+            if subTree[k].nodeExist(demand):
+                if(bw<0):
+                    subTree[k].delete(demand)
+                else:
+                    w = subTree[k].getValueNode(demand)**(1/2)
+                    subTree[k].setWeightNode(metaWeight(subBw+w,2))
+            else:
+                subTree[k].addNode(demand, bw)
+
+
+def changeDemandData(demands):
+    loads = np.zeros(nEdges)
+    util = np.zeros(nEdges)
+    mainTree.resetValues()
+    for tree in subTree:
+        tree.removeAllNodes()
+    
+    for i in range(len(demands)):
+        flowCompute(demands[i].src, demands[i].dest, demands[i].bw, i)
+
+def selectDemand():
+    edge = mainTree.select()
+    demand = subTree[edge].select()
+    return demand
+
+
+def optimize():
+    pass
+
+
+ 
