@@ -26,7 +26,7 @@ class MaxLoad(Trial, Objective):
         edge = self.nEdges
         while edge > 0:
             edge -= 1
-            load = flow[edge]*capacityData.invCapacity[edge]
+            load = flow[edge]*self.capacityData.invCapacity[edge]
             if load > self.maxLoad:
                 self.maxEdge = edge
                 self.maxLoad = load

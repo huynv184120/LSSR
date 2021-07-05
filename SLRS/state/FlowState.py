@@ -77,6 +77,13 @@ class FlowStateRecomputeDAG(FlowStateChecker):
         self.commitState()
     
     def modify(self, src, dest, bw):
-        pass
+        assert src != dest
+        paths = self.sp.pathEdges[src][dest]
+        nPaths = self.sp.nPaths[src][dest]
+        increment = bw / nPaths
+        for path in paths:
+            for edge in path:
+                self.updateValue(edge, self.values[edge] + increment)
+
 
             

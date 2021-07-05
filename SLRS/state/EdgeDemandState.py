@@ -34,8 +34,9 @@ class EdgeDemandState:
     
 class EdgeDemandStateTree(EdgeDemandState):
 
-    def __init__(self, nDemands, nEdges):
+    def __init__(self, nDemands, nEdges, capa):
         super().__init__(nDemands, nEdges)
+        self.capacityData = capa
         logDemands = math.ceil(math.log2(nDemands))
         self.baseDemand = 1 << logDemands
         self.treeFlowOnEdgeDemand = []

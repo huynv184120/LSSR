@@ -16,7 +16,7 @@ class ArrayStateFloat(TrialState):
             self.deltaMarker[element] == True
             self.deltaElements[element] = element
             self.nDelta += 1
-        self.values(element) = newValue
+        self.values[element] = newValue
 
     def revertState(self):
         while self.nDelta > 0:
