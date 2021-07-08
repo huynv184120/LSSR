@@ -1,9 +1,11 @@
-from PathState import PathState
-from PathState import TrialState
+import os, sys
+lib_path = os.path.abspath(os.path.join('state'))
+sys.path.append(lib_path)
+from TrialState import TrialState
 
 class SavedState(TrialState):
     def __init__(self, pathState):
-        super.__init__()
+        TrialState.__init__(self)
         self.pathState = pathState
         self.nDemands = pathState.nDemands
         self.changed = [False]*self.nDemands
@@ -52,7 +54,7 @@ class SavedState(TrialState):
         while self.nChanged > 0:
             self.nChanged -= 1
             demand  = self.changedStack[self.nChanged]
-            self.changed = False
+            self.changed[demand] = False
             self.pathState.setPath(demand, self.paths[demand], self.lengthPaths[demand])
 
     def check(self):
@@ -64,7 +66,15 @@ class SavedState(TrialState):
         while p > 0:
             p -= 1
             demand = currentChanged[p]
-            self.changedPath[demand] = True
+            self.changedPath(demand)
+
+    def revert(self):
+        pass
+
+    def update(self):
+        pass
+
+
 
 
 # def showPaths(paths):

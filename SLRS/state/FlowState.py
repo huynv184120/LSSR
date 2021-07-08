@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from state.PathState import Path
+from PathState import Path
 from ArrayState import ArrayStateFloat
 import math
 
 class FlowStateChecker(ArrayStateFloat):
     def __init__(self, nNodes, nEdges, pathState, demandsData):
-        super().__init__(nNodes)
+        ArrayStateFloat.__init__(self, nEdges)
         self.nNodes = nNodes
         self. nEdges = nEdges
         self.pathState = pathState
@@ -13,7 +13,7 @@ class FlowStateChecker(ArrayStateFloat):
 
     def check(self):
         self.updateState()
-        super.check()
+        ArrayStateFloat.check(self)
 
     @abstractmethod
     def modify(self, src, dest, bw):
@@ -71,33 +71,33 @@ class FlowStateChecker(ArrayStateFloat):
 
 class FlowStateRecomputeDAG(FlowStateChecker):
     def __init__(self, nNodes, nEdges, sp, pathState, demandsData):
-        super().__init__(nNodes, nEdges, pathState, demandsData)
+        FlowStateChecker.__init__(self, nNodes, nEdges, pathState, demandsData)
         self.sp = sp
         self.initialize()
         self.commitState()
-    
-    def check(self):
-        return True
-    
+ 
     def modify(self, src, dest, bw):
-        assert src != dest
-        paths = self.sp.pathEdges[src][dest]
-        nPaths = self.sp.nPaths[src][dest]
-        increment = bw / nPaths
-        for path in paths:
-            for edge in path:
-                self.updateValue(edge, self.values[edge] + increment)
-            
+        if src != dest:
+            paths = self.sp.pathEdges[src][dest]
+            nPaths = self.sp.nPaths[src][dest]
+            increment = bw / nPaths
+            for path in paths:
+                for edge in path:
+                    self.updateValue(edge, self.values[edge] + increment)
+    
 
 
 class FlowStateRecomputeDAGOnCommit(ArrayStateFloat):
-    def __init__(self, nNodes, nEdges, pathState, demandsData, edgeDemandState):
-        super().__init__(nNodes)
+    def __init__(self, nNodes, nEdges, sp, pathState, demandsData, edgeDemandState):
+        ArrayStateFloat.__init__(self, nEdges)
         self.nNodes = nNodes
         self. nEdges = nEdges
+        self.sp = sp
         self.pathState = pathState
         self.demandsData = demandsData
         self.edgeDemandState = edgeDemandState
+        self.initialize()
+        self.commit()
 
     def check(self):
         return True
@@ -107,7 +107,7 @@ class FlowStateRecomputeDAGOnCommit(ArrayStateFloat):
 
     def commit(self):
         self.updateFlowState()
-        super.commit()
+        ArrayStateFloat.commit(self)
     
     def initialize(self):
         demand = self.pathState.nDemands
@@ -159,13 +159,14 @@ class FlowStateRecomputeDAGOnCommit(ArrayStateFloat):
             while q <= endOld:
                 self.modify(demand, oldPath[q], oldPath[q+1], -bandwidth)
                 q += 1
+    
 
     def modify(self, demand, src, dest, bw):
-        assert src != dest
-        paths = self.sp.pathEdges[src][dest]
-        nPaths = self.sp.nPaths[src][dest]
-        increment = bw / nPaths
-        for path in paths:
-            for edge in path:
-                self.updateValue(edge, self.values[edge] + increment)
-                self.edgeDemandState.updateEdgeDemand(edge, demand, increment)
+        if src != dest:
+            paths = self.sp.pathEdges[src][dest]
+            nPaths = self.sp.nPaths[src][dest]
+            increment = bw / nPaths
+            for path in paths:
+                for edge in path:
+                    self.updateValue(edge, self.values[edge] + increment)
+                    self.edgeDemandState.updateEdgeDemand(edge, demand, increment)

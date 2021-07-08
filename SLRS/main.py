@@ -1,8 +1,18 @@
+
 from os import close
 import os, sys
+
+from networkx.generators.classic import null_graph
 lib_path = os.path.abspath(os.path.join('core'))
 sys.path.append(lib_path)
 from CapacityData import CapacityData
+
+lib_path = os.path.abspath(os.path.join('io'))
+sys.path.append(lib_path)
+from DemandsData import DemandsData
+
+from LoadOptimizer import LoadOptimizer
+
 import csv
 import networkx as nx
 from networkx.algorithms.centrality import percolation
@@ -64,9 +74,20 @@ for u in G.nodes:
                 B[-1].append([])
                 for i in range(len(path) - 1):
                     B[-1][-1].append(G[path[i]][path[i+1]]['index'])
+
     sPathNode.append(A)
     sPathEdge.append(B)
     nSPath.append(C)
 
 sp = ShortestPaths(sPathNode, sPathEdge, nSPath)
 capacity =  CapacityData(capa)
+demandData = DemandsData([1,2,3,4], [1,1,1,1], [6,6,4,7], [20000,2000,200,200])
+loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
+
+
+
+resultState = loadOptimizer.solve(1000)
+
+
+
+print('optimized value is ', resultState.trials[2].score())

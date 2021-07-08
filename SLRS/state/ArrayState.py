@@ -14,7 +14,7 @@ class ArrayStateFloat(TrialState):
     def updateValue(self, element, newValue):
         if self.deltaMarker[element] == False:
             self.deltaMarker[element] == True
-            self.deltaElements[element] = element
+            self.deltaElements[self.nDelta] = element
             self.nDelta += 1
         self.values[element] = newValue
 

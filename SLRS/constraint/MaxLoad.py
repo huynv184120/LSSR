@@ -14,10 +14,10 @@ class MaxLoad(Trial, Objective):
         self.nMaxLoad = 0
         self.maxLoad = 0.0
         self.maxEdge = 0
-        self.oldNMaxload = 0
-        self.oldMaxload = 0.0
-        self.oldMaxEdge = 0
         self.initialize()
+        self.oldNMaxload = self.nMaxLoad
+        self.oldMaxload = self.maxLoad
+        self.oldMaxEdge = self.maxEdge
 
     def initialize(self):
         self.nMaxLoad = 0
@@ -56,13 +56,14 @@ class MaxLoad(Trial, Objective):
                     self.maxLoad = load
                     self.nMaxLoad = 1
                 else:
-                    if load == self.MaxLoad:
+                    if load == self.maxLoad:
                         self.nMaxLoad += 1
                     else:
-                        if oldLoad == self.MaxLoad:
+                        if oldLoad == self.maxLoad:
                             self.nMaxLoad -= 1
         if self.nMaxLoad == 0:
             self.initialize()
+      
             
     
     def commit(self):
@@ -81,6 +82,9 @@ class MaxLoad(Trial, Objective):
         if improved == False:
             self.revert()
         return improved
+
+    def score(self):
+        return self.maxLoad
 
     
 

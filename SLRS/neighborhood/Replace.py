@@ -21,7 +21,7 @@ class Replace(Neighborhood):
         self.source = self.pathState.source(demand)
         self.destination = self.pathState.destination(demand)
         self.position = 0
-        self.node = -1
+        self.node = self.nNodes - 1
         self.size = self.pathState.size(demand)
         self.storedPosition = 0
         self.storedNode = self.node

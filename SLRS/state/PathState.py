@@ -7,7 +7,7 @@ from TrialState import TrialState
 
 class PathState(TrialState):
     def __init__(self, demands):
-        super.__init__()
+        TrialState.__init__(self)
         self.demands = demands
         self.nDemands = demands.nDemands
         self.maxDetourSize = 6
@@ -72,11 +72,7 @@ class PathState(TrialState):
             self.markedChanged[demand] = False
 
     def updateState(self):
-        while self.nChanged > 0:
-            self.nChanged -= 1
-            demand = self.changed[self.nChanged]
-            self.paths[demand].save()
-            self.markedChanged[demand] = False
+        pass
             
 
     def addChanged(self, demand):

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import overload
 
 class Trial:
     @abstractmethod
@@ -63,9 +62,12 @@ class TrialState(Trial):
 
     def check(self):
         pTrial = 0
-        while (pTrial < self.nTrial) & self.trials[pTrial].check():
+        while (pTrial < self.nTrial):
+            if self.trials[pTrial].check() == False:
+                break
             pTrial += 1
-        
+
+
         _pass = (pTrial == self.nTrial)
 
         if _pass != True :
@@ -75,7 +77,7 @@ class TrialState(Trial):
 
             self.revertState()
         
-        pass
+        return _pass
 
     def revert(self):
         self.revertAll()
