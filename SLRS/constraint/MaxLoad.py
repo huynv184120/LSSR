@@ -87,7 +87,6 @@ class MaxLoad(Trial, Objective):
         return self.maxLoad
 
     
-
+    
     
 
-        

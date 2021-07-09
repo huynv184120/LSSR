@@ -123,9 +123,7 @@ class LoadOptimizer:
                 neighborhood = self.neighborhoods[pNeighborhood]
                 improvementFound = self.visitNeighborhood(neighborhood, demand)
                 if improvementFound:
-                
                     neighborhood.applyBest()
-                    
                     self.pathState.update()
                     self.pathState.commit()
                     

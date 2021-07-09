@@ -1,6 +1,6 @@
 
-from os import close
 import os, sys
+import random
 
 from networkx.generators.classic import null_graph
 lib_path = os.path.abspath(os.path.join('core'))
@@ -79,15 +79,41 @@ for u in G.nodes:
     sPathEdge.append(B)
     nSPath.append(C)
 
+
+
+
 sp = ShortestPaths(sPathNode, sPathEdge, nSPath)
 capacity =  CapacityData(capa)
-demandData = DemandsData([1,2,3,4], [1,1,1,1], [6,6,4,7], [20000,2000,200,200])
+
+def generateRandomRequests(count):
+    A = []
+    for i in range(count):
+        bw = random.gauss(400, 200)
+        if bw < 0 :
+            bw = 0
+        A.append(bw)
+    return A
+
+srcs = []
+dests = []
+for i in range(nNodes):
+    for j in range (nNodes):
+        if i != j:
+            srcs.append(i)
+            dests.append(j)
+
+labels = list(range(len(srcs)))
+bws = generateRandomRequests(len(srcs))
+
+
+
+
+
+demandData = DemandsData(labels, srcs, dests, bws)
+
+
 loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
 
-
-
-resultState = loadOptimizer.solve(1000)
-
-
-
+print('first value is ', loadOptimizer.maxLoad.score())
+resultState = loadOptimizer.solve(2000)
 print('optimized value is ', resultState.trials[2].score())
