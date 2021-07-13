@@ -123,9 +123,7 @@ class LoadOptimizer:
                 neighborhood = self.neighborhoods[pNeighborhood]
                 improvementFound = self.visitNeighborhood(neighborhood, demand)
                 if improvementFound:
-                
                     neighborhood.applyBest()
-                    
                     self.pathState.update()
                     self.pathState.commit()
                     
@@ -138,12 +136,33 @@ class LoadOptimizer:
     
     def solve(self,timeLimit):
         self.startMoving(timeLimit)
-        print(self.bestPaths.paths)
         self.bestPaths.restorePath()
         self.pathState.update()
         self.pathState.commit()
-        print(self.bestPaths.paths)
         return self.pathState
+
+    def modifierDemands(self, newDemand):
+        diffs = []
+        for i in range(len(self.decisionDemands.demandTraffics)):
+            diffs.append(newDemand.demandTraffics[i] - self.decisionDemands.demandTraffics[i] )
+            self.decisionDemands.demandTraffics[i] += diffs[i]
+
+        for demand in range(self.nDemands):
+            path = self.pathState.path(demand)
+            pDetour = self.pathState.size(demand) - 1
+
+            while pDetour > 0:
+                pDetour -= 1
+                src = path[pDetour]
+                dest = path[pDetour + 1]
+                self.flowState.modify(src, dest, diffs[i])
+                self.flowStateOnCommit.modify(demand, src, dest, diffs[demand])
+
+            self.flowState.update()
+            self.flowState.commit()
+
+            self.flowStateOnCommit.update()
+            self.flowStateOnCommit.commit()
 
 
 

@@ -49,7 +49,9 @@ class FlowStateChecker(ArrayStateFloat):
 
             firstDiff = 1
 
-            while firstDiff < minSize & currentPath[firstDiff] == oldPath[firstDiff]:
+            while firstDiff < minSize :
+                if currentPath[firstDiff] != oldPath[firstDiff]:
+                    break
                 firstDiff += 1
 
             endCurrent = currentSize - 2
@@ -140,7 +142,9 @@ class FlowStateRecomputeDAGOnCommit(ArrayStateFloat):
 
             firstDiff = 1
 
-            while firstDiff < minSize & currentPath[firstDiff] == oldPath[firstDiff]:
+            while firstDiff < minSize :
+                if currentPath[firstDiff] != oldPath[firstDiff]:
+                    break
                 firstDiff += 1
 
             endCurrent = currentSize - 2

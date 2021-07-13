@@ -130,7 +130,7 @@ class Path:
         assert(newPath[newSize - 1] == self.destination)
         assert(newSize <= self.maxSize)
         self.currentSize = newSize
-        self.currentPath = newPath
+        self.currentPath = newPath.copy()
 
     def save(self):
         self.savedSize = self.currentSize

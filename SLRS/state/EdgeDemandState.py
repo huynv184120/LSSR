@@ -44,15 +44,15 @@ class EdgeDemandStateTree(EdgeDemandState):
         for i in range(nEdges):
             self.treeFlowOnEdgeDemand.append([0.0]*(self.baseDemand*2))
     
-    def __str__(self) -> str:
+    def __str__(self):
         return str(self.treeFlowOnEdgeDemand)
 
     def flowOnEdgeDemand(self, edge, demand):
-        return self.treeFlowOnEdgeDemand[edge][demand]
+        return self.treeFlowOnEdgeDemand[edge][demand+self.baseDemand]
 
     def modifyFlowDemand(self, edge, demand, newFlow):
         assert (newFlow > -self.epsilon)
-        self.treeFlowOnEdgeDemand[edge][demand] =  newFlow
+        self.treeFlowOnEdgeDemand[edge][demand+self.baseDemand] =  newFlow
         self.modifyFlowDemandTree(self.treeFlowOnEdgeDemand[edge], (self.baseDemand+demand) >> 1)
 
     def modifyFlowDemandTree(self, tree, node):
@@ -73,10 +73,12 @@ class EdgeDemandStateTree(EdgeDemandState):
         r = random.random()*self.treeFlowOnEdgeDemand[edge][1] - self.epsilon
         selectedNode = self.selectDemand(self.treeFlowOnEdgeDemand[edge], 1, 2 * self.baseDemand, r)
         selectedDemand = selectedNode - self.baseDemand
+
+        assert ((selectedDemand < self.nDemands) & (selectedDemand >= 0))
         return selectedDemand
 
     def selectDemand(self, tree, node, limit, r):
-        left = node << 2
+        left = node << 1
         if left >= limit:
             return node
         else:
@@ -86,7 +88,22 @@ class EdgeDemandStateTree(EdgeDemandState):
                 right = left + 1
                 return self.selectDemand(tree, right, limit, r - tree[left])
 
+    def showIF(self):
+        print('******************')
+        for tree in self.treeFlowOnEdgeDemand:
+            print(tree)
+        print('******************')
     
+# tree = EdgeDemandStateTree(5, 2 , None)
+
+# tree.showIF()
+
+# tree.updateEdgeDemand(0,3,200)
+# tree.updateEdgeDemand(0,4,200)
+
+# tree.showIF()
+
+# print(tree.selectRandomDemand(0))
 
 
 

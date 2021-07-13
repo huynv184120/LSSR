@@ -45,7 +45,7 @@ class SavedState(TrialState):
             if pathChanged == True :
                 count += 1
 
-            self.paths[demand] = path
+            self.paths[demand] = path.copy()
             self.lengthPaths[demand] = size
         
         return count
@@ -84,7 +84,6 @@ class SavedState(TrialState):
 # demands = DemandsData([1,2,3,4],[4,3,2,1],[3,2,3,2],[1,1,1,1])
 # pathState = PathState(demands)
 # showPaths(pathState.paths)
-
 # pathState.insert(1,4,1)
 
-# showPaths(pathState.paths)
+# (pathState.paths)
