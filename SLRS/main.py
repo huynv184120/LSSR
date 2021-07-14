@@ -78,8 +78,9 @@ def createDemandData(path):
         
 
 net = ''
-
 index = 0
+
+
 
 for i in range(len(pathFiles)):
     p = pathFiles[i].split('.')
@@ -123,14 +124,18 @@ for i in range(len(pathFiles)):
         createDemandData('.\\2016TopologyZooUCL_inverseCapacity\\'+pathFiles[i])
 
         demandData = DemandsData(labels, srcs, dests, bws)
-        # if index == 0:
-        #     loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
-        # else:
-        #     loadOptimizer.modifierDemands(demandData)
-        loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
+        if index == 0:
+            loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
+        else:
+            loadOptimizer.modifierDemands(demandData)
+        # loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges, demandData)
+
+
         resultState = loadOptimizer.solve(1000)
+
         print(p[0], ' ', index, ' ',resultState.trials[2].score())
-        f =  open('output1.txt','a')
+
+        f =  open('output5.txt','a')
         s = str(p[0]) + ' '+ str(index) + ' '+ str(resultState.trials[2].score()) + '\n'
         f.write(s)
         f.close()

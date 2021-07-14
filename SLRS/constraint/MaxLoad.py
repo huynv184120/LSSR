@@ -22,6 +22,8 @@ class MaxLoad(Trial, Objective):
     def initialize(self):
         self.nMaxLoad = 0
         self.maxLoad = 0.0
+
+
         flow = self.flowState.values
         edge = self.nEdges
         while edge > 0:
@@ -34,6 +36,7 @@ class MaxLoad(Trial, Objective):
             else:
                 if load == self.maxLoad:
                     self.nMaxLoad += 1
+        
         
     def selectRandomMaxEdge(self):
         return self.maxEdge

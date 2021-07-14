@@ -104,6 +104,7 @@ class LoadOptimizer:
         nIterations = 0
         bestIteration = 0
         while(time.time() * 1000000000 < stopTime):
+
             nIterations += 1
             if (self.maxLoad.score() > bestLoad) & (nIterations > (bestIteration + 1000)):
                 self.bestPaths.restorePath()
@@ -115,18 +116,23 @@ class LoadOptimizer:
 
             if (self.maxLoad.score == bestLoad) & (nIterations > (bestIteration + 3)):
                 bestIteration = nIterations
+                
                 self.kick(demand)
             
             improvementFound = False
             pNeighborhood = 0
+
             while (improvementFound == False) & (pNeighborhood < len(self.neighborhoods)):
                 neighborhood = self.neighborhoods[pNeighborhood]
                 improvementFound = self.visitNeighborhood(neighborhood, demand)
+              
+
                 if improvementFound:
+                  
                     neighborhood.applyBest()
                     self.pathState.update()
                     self.pathState.commit()
-                    
+
                     if self.maxLoad.score() < bestLoad:
                         self.bestPaths.savePath()
                         bestLoad = self.maxLoad.score()
@@ -135,7 +141,9 @@ class LoadOptimizer:
                 pNeighborhood += 1
     
     def solve(self,timeLimit):
+     
         self.startMoving(timeLimit)
+      
         self.bestPaths.restorePath()
         self.pathState.update()
         self.pathState.commit()
@@ -146,7 +154,6 @@ class LoadOptimizer:
         for i in range(len(self.decisionDemands.demandTraffics)):
             diffs.append(newDemand.demandTraffics[i] - self.decisionDemands.demandTraffics[i] )
             self.decisionDemands.demandTraffics[i] += diffs[i]
-
         for demand in range(self.nDemands):
             path = self.pathState.path(demand)
             pDetour = self.pathState.size(demand) - 1
@@ -155,15 +162,14 @@ class LoadOptimizer:
                 pDetour -= 1
                 src = path[pDetour]
                 dest = path[pDetour + 1]
-                self.flowState.modify(src, dest, diffs[i])
+                self.flowState.modify(src, dest, diffs[demand])
                 self.flowStateOnCommit.modify(demand, src, dest, diffs[demand])
-
-            self.flowState.update()
-            self.flowState.commit()
-
-            self.flowStateOnCommit.update()
-            self.flowStateOnCommit.commit()
-
+        self.flowState.update()
+        self.flowStateOnCommit.update()
+        self.flowStateOnCommit.commit()
+        self.flowState.commit()
+        self.maxLoad.initialize()
+        self.maxLoad.commit()
 
 
 
