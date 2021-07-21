@@ -1,3 +1,4 @@
+from DemandsData import DemandsData
 import os, sys
 
 from networkx.classes.function import neighbors
@@ -29,7 +30,20 @@ from Reset import Reset
 
 
 class LoadOptimizer:
-    def __init__(self, sp, capacity , nNodes, nEdges, decisionDemands):
+    def __init__(self, sp, capacity , nNodes, nEdges):
+        labels = []
+        srcs = []
+        dest = []
+        bws = []
+        for i in range(nNodes):
+            for j in range (nNodes):
+                if i != j:
+                    srcs.append(i)
+                    dest.append(j)
+                    bws.append(0)
+
+        decisionDemands = DemandsData(labels, srcs, dest, bws)
+
         self.sp = sp
         self.nDemands = decisionDemands.nDemands
         self.capacity = capacity
@@ -88,7 +102,7 @@ class LoadOptimizer:
 
 
         return improvementFound
-
+         
     def kick(self, demand):
         choice = random.randint(0, self.kickNeighborhoods)
         neighborhood = self.kickNeighborhoods[choice]
@@ -139,11 +153,11 @@ class LoadOptimizer:
                         bestIteration = nIterations
 
                 pNeighborhood += 1
-    
+         
     def solve(self,timeLimit):
-     
+         
         self.startMoving(timeLimit)
-      
+         
         self.bestPaths.restorePath()
         self.pathState.update()
         self.pathState.commit()
@@ -170,6 +184,22 @@ class LoadOptimizer:
         self.flowState.commit()
         self.maxLoad.initialize()
         self.maxLoad.commit()
+
+    def modifierTrafficMatrix(self, tf):
+        labels = []
+        srcs = []
+        dest = []
+        bws = []
+
+        for i in range(len(tf)):
+            for j in range (len(tf)):
+                if i!=j:
+                    srcs.append(i)
+                    dest.append(j)
+                    bws.append(tf[i][j])
+        demandData = DemandsData(labels, srcs, dest, bws)
+        self.modifierDemands(demandData)
+
 
 
 
