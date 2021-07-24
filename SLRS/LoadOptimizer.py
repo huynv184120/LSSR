@@ -1,4 +1,4 @@
-from DemandsData import DemandsData
+
 import os, sys
 
 from networkx.classes.function import neighbors
@@ -7,6 +7,12 @@ from state.EdgeDemandState import EdgeDemandStateTree
 lib_path = os.path.abspath(os.path.join('core'))
 sys.path.append(lib_path)
 from CapacityData import CapacityData
+
+lib_path = os.path.abspath(os.path.join('io'))
+sys.path.append(lib_path)
+from DemandsData import DemandsData
+
+
 import random
 import time
 
@@ -200,6 +206,16 @@ class LoadOptimizer:
         demandData = DemandsData(labels, srcs, dest, bws)
         self.modifierDemands(demandData)
 
+    def extractRoutingPath(self):
+        paths = []
+        for i in range(self.nNodes):
+            A = []
+            for j in range(self.nNodes):
+                A.append([])
+            paths.append(A)
 
+        for i in range(self.pathState.nDemands):
+            paths[self.pathState.source(i)][self.pathState.destination(i)] = self.pathState.paths[i].currentPath  
+        return paths
 
 

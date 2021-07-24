@@ -83,6 +83,7 @@ class PathState(TrialState):
             self.nChanged += 1
     
 
+    
 
 
 class Path:

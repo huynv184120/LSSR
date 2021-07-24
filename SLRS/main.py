@@ -84,4 +84,6 @@ loadOptimizer.modifierTrafficMatrix(TM)
 
 loadOptimizer.solve(1000)
 
+for path in loadOptimizer.extractRoutingPath():
+    print(path)
 print (loadOptimizer.maxLoad.score())
