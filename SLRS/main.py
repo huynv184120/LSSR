@@ -94,8 +94,7 @@ print (loadOptimizer.maxLoad.score())
 
 
 def computeMaximumLinkUtilization(G, srPaths ,TM):
-    maxFlow = 0
-    index = 0
+    MaximumLinkUtilization = 0
     values = [0]*G.number_of_edges()
     for i in range(G.number_of_nodes()):
         for j in range(G.number_of_nodes()):
@@ -108,11 +107,10 @@ def computeMaximumLinkUtilization(G, srPaths ,TM):
                     increment = TM[n][m] / nPath
                     for path in paths:
                         for edge in path:
-                            values[edge] += increment
-                            if values[edge] > maxFlow:
-                                maxFlow = values[edge]
-                                index = edge
-    return maxFlow/G.capacity.capacity[index]
+                            values[edge] += increment/G.capacity.capacity[edge]
+                            if values[edge] > MaximumLinkUtilization:
+                                MaximumLinkUtilization = values[edge]
+    return MaximumLinkUtilization
 
 
 print(computeMaximumLinkUtilization(G, loadOptimizer.extractRoutingPath(), TM))
