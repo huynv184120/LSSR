@@ -104,7 +104,7 @@ def computeMaximumLinkUtilization(G, srPaths ,TM):
                     m = srPaths[i][j][k + 1]
                     paths = G.sp.pathEdges[n][m]
                     nPath = G.sp.nPaths[n][m]
-                    increment = TM[n][m] / nPath
+                    increment = TM[i][j] / nPath
                     for path in paths:
                         for edge in path:
                             values[edge] += increment/G.capacity.capacity[edge]
