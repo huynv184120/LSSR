@@ -74,6 +74,7 @@ def createGraph(NodesFile, EdgesFile):
     capacity =  CapacityData(capacity)
     sp = ShortestPaths(sPathNode, sPathEdge, nSPath)
     G.sp = sp
+    G.capacity = capacity
     return G
 
 G = createGraph('data\\abilene_tm_node.csv','data\\abilene_tm_edge.csv')
@@ -92,8 +93,9 @@ print (loadOptimizer.maxLoad.score())
 
 
 
-def flowCompute(G, srPaths ,TM):
+def computeMaximumLinkUtilization(G, srPaths ,TM):
     maxFlow = 0
+    index = 0
     values = [0]*G.number_of_edges()
     for i in range(G.number_of_nodes()):
         for j in range(G.number_of_nodes()):
@@ -109,6 +111,8 @@ def flowCompute(G, srPaths ,TM):
                             values[edge] += increment
                             if values[edge] > maxFlow:
                                 maxFlow = values[edge]
-    return maxFlow
+                                index = edge
+    return maxFlow/G.capacity.capacity[index]
 
-print(flowCompute(G, loadOptimizer.extractRoutingPath(), TM))
+
+print(computeMaximumLinkUtilization(G, loadOptimizer.extractRoutingPath(), TM))
