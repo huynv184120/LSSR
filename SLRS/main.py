@@ -115,4 +115,19 @@ def computeMaximumLinkUtilization(G, srPaths ,TM):
     return MaximumLinkUtilization
 
 
-print(computeMaximumLinkUtilization(G, loadOptimizer.extractRoutingPath(), TM))
+# print(computeMaximumLinkUtilization(G, loadOptimizer.extractRoutingPath(), TM))
+def routingSulutionToRoutingMatrix(routingSolution, G):
+    nLinks = G.number_of_edges()
+    nNodes = G.number_of_nodes()
+    routingMatrix = np.zeros((nLinks,nNodes**2))
+    for i in range(nNodes):
+        for j in range(nNodes):
+            if i != j:
+                for k in range(len(routingSolution[i][j])-1):
+                    n = routingSolution[i][j][k]
+                    m = routingSolution[i][j][k + 1]
+                    for path in G.sp.pathEdges[m][n]:
+                        for link in path:
+                            routingMatrix[link][i*nNodes+j] = 1
+    return routingMatrix
+
