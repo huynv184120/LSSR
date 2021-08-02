@@ -87,9 +87,9 @@ loadOptimizer.modifierTrafficMatrix(TM)
 loadOptimizer.solve(1000)
 
 
-for path in loadOptimizer.extractRoutingPath():
-    print(path)
-print (loadOptimizer.maxLoad.score())
+# for path in loadOptimizer.extractRoutingPath():
+#     print(path)
+# print (loadOptimizer.maxLoad.score())
 
 
 
@@ -130,4 +130,25 @@ def routingSulutionToRoutingMatrix(routingSolution, G):
                         for link in path:
                             routingMatrix[link][i*nNodes+j] = 1
     return routingMatrix
+
+def computeFlowTrafficLinks(G, routingSolution, trafficMatrix):
+    nLinks = G.number_of_edges()
+    nNodes = G.number_of_nodes()
+    linksLoad = np.zeros((nLinks, 1))
+    for i in range(nNodes):
+        for j in range(nNodes):
+            if i != j:
+                for k in range(len(routingSolution[i][j])-1):
+                    n = routingSolution[i][j][k]
+                    m = routingSolution[i][j][k + 1]
+                    paths = G.sp.pathEdges[n][m]
+                    nPath = G.sp.nPaths[n][m]
+                    if m != n: 
+                        increment = trafficMatrix[i][j] / nPath
+                        for path in paths:
+                            for edge in path:
+                                linksLoad[edge] += increment
+    return linksLoad
+
+print(computeFlowTrafficLinks(G, loadOptimizer.extractRoutingPath(), TM))
 
