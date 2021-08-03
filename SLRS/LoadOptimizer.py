@@ -1,5 +1,6 @@
 
 import os, sys
+import numpy as np
 
 from networkx.classes.function import neighbors
 from state.SavedState import SavedState
@@ -76,7 +77,7 @@ class LoadOptimizer:
 
     def selectDemand(self):
         edge = self.maxLoad.selectRandomMaxEdge()
-        return self.edgeDemandState.selectRandomDemand(edge)
+        return self.edgeDemandState.selectRandomDemand(edge), edge
 
 
 
@@ -105,8 +106,6 @@ class LoadOptimizer:
                         bestNeighborhoodLoad = self.maxLoad.score()
                 self.pathState.revert()
         
-
-
         return improvementFound
          
     def kick(self, demand):
@@ -118,6 +117,9 @@ class LoadOptimizer:
             self.pathState.commit()
     
     def startMoving(self, timeLimit):
+        selectedLinks = np.zeros((self.nEdges, 1))
+        selectedFlows = np.zeros((self.nNodes, self.nNodes))
+        
         startTime = time.time() * 1000000000
         stopTime  = startTime + timeLimit * 1000000
         bestLoad = self.maxLoad.score()
@@ -132,7 +134,7 @@ class LoadOptimizer:
                 self.pathState.commit()
                 bestIteration = nIterations - 1
 
-            demand = self.selectDemand()
+            demand, edge = self.selectDemand()
 
             if (self.maxLoad.score == bestLoad) & (nIterations > (bestIteration + 3)):
                 bestIteration = nIterations
@@ -154,20 +156,24 @@ class LoadOptimizer:
                     self.pathState.commit()
 
                     if self.maxLoad.score() < bestLoad:
+                        selectedLinks[edge] += 1
+                        selectedFlows[self.decisionDemands.demandSrcs[demand]][self.decisionDemands.demandDests[demand]] += 1
                         self.bestPaths.savePath()
                         bestLoad = self.maxLoad.score()
                         bestIteration = nIterations
 
                 pNeighborhood += 1
+
+        return selectedFlows, selectedLinks 
          
     def solve(self,timeLimit):
          
-        self.startMoving(timeLimit)
-         
+        flows, links = self.startMoving(timeLimit)
+        
         self.bestPaths.restorePath()
         self.pathState.update()
         self.pathState.commit()
-        return self.pathState
+        return flows, links
 
     def modifierDemands(self, newDemand):
         diffs = []
