@@ -81,10 +81,10 @@ G = createGraph('data\\abilene_tm_node.csv','data\\abilene_tm_edge.csv')
 
 loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges)
 
-TM = np.random.randint(0,10000,(12,12))
+TM = np.ones((12,12))
 loadOptimizer.modifierTrafficMatrix(TM)
 
-flows, links = loadOptimizer.solve(1000)
+flows, links = loadOptimizer.solve(10000)
 print(flows)
 print(links)
 
@@ -113,6 +113,7 @@ def computeMaximumLinkUtilization(G, srPaths ,TM):
                                 values[edge] += increment/G.capacity.capacity[edge]
                                 if values[edge] > MaximumLinkUtilization:
                                     MaximumLinkUtilization = values[edge]
+    print(values)
     return MaximumLinkUtilization
 
 
@@ -153,3 +154,4 @@ def computeFlowTrafficLinks(G, routingSolution, trafficMatrix):
 
 # print(computeFlowTrafficLinks(G, loadOptimizer.extractRoutingPath(), TM))
 
+    
