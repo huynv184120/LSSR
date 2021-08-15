@@ -92,12 +92,7 @@ def init(G ,TM):
     
     return values  # values is utilization 
 
-def selectionDemand(G, edgeDemandState, U):
-    edge = 0
-    for i in range(G.number_of_edges()):
-        if U[edge] < U[i]:
-            edge = i
-
+def selectionDemand(G, edgeDemandState, U ,edge):
     idDemand = edgeDemandState.selectRandomDemand(edge)
     if edgeDemandState.flowOnEdgeDemand(edge, idDemand) < 0.000001:
         u = -1
@@ -107,27 +102,28 @@ def selectionDemand(G, edgeDemandState, U):
     v = idDemand % G.number_of_nodes()
     return u,v    
 
-def transitionFunction(G, TM, edgeDemandState, U, u, v, a):
+def transitionFunction(G, TM, edgeDemandState, U, u, v, a, edgeMax):
     paths = G.sp.pathEdges[u][v]
     nPath = G.sp.nPaths[u][v]
-    oldMaxUtil = 0
+    oldMaxUtil = U[edgeMax]
+
     increment = TM[u][v] / nPath
     for path in paths:
         for edge in path:
-            if oldMaxUtil < U[edge]:
-                oldMaxUtil = U[edge]
             U[edge] -= increment/G.capacity.capacity[edge]
             edgeDemandState.updateEdgeDemand(edge, u*G.number_of_nodes() + v, -increment)
     
     paths = G.sp.pathEdges[u][a]
     nPath = G.sp.nPaths[u][a]
     newMaxUtil = 0
+    newEdgeMax = 0
     increment = TM[u][v] / nPath
     for path in paths:
         for edge in path:
             U[edge] += increment/G.capacity.capacity[edge]
             if newMaxUtil < U[edge]:
                 newMaxUtil = U[edge]
+                newEdgeMax = edge
 
     paths = G.sp.pathEdges[a][v]
     nPath = G.sp.nPaths[a][v]
@@ -137,8 +133,16 @@ def transitionFunction(G, TM, edgeDemandState, U, u, v, a):
             U[edge] += increment/G.capacity.capacity[edge]
             if newMaxUtil < U[edge]:
                 newMaxUtil = U[edge]
-    changeMaxUtil = newMaxUtil - oldMaxUtil
-    u, v = selectionDemand(G, edgeDemandState, U)
+                newEdgeMax = edge
+    
+
+    changeMaxUtil = oldMaxUtil - U[edgeMax]
+    
+
+    if U[edgeMax] < U[newEdgeMax]:
+        edgeMax = newEdgeMax
+
+    u, v = selectionDemand(G, edgeDemandState, U, edgeMax)
 
     return U, (u,v), changeMaxUtil  #U is Utilization (u, v) is demand 
 
