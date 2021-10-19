@@ -22,11 +22,13 @@ from ShortestPaths import ShortestPaths
 nNodes = 0
 nEdges = 0
 capacity = []
+delays = []
 sp = None
 
 def createGraph(NodesFile, EdgesFile):
-    global nNodes, nEdges, capacity, sp
+    global nNodes, nEdges, capacity, sp, delays
     capacity = []
+    delays = []
     G =  nx.DiGraph()
     with open(NodesFile) as f:
         f.readline()
@@ -46,6 +48,7 @@ def createGraph(NodesFile, EdgesFile):
             dest = int(line[2])
             w = float (line[3])
             capacity.append(float(line[4]))
+            delays.append(float(line[5]))
             G.add_weighted_edges_from([(src, dest, w)])
             G.edges[src,dest]['index'] = index
             index += 1
@@ -75,23 +78,8 @@ def createGraph(NodesFile, EdgesFile):
     sp = ShortestPaths(sPathNode, sPathEdge, nSPath)
     G.sp = sp
     G.capacity = capacity
+    G.delays = delays
     return G
-
-G = createGraph('data\\abilene_tm_node.csv','data\\abilene_tm_edge.csv')
-
-loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges)
-
-TM = np.ones((12,12))
-loadOptimizer.modifierTrafficMatrix(TM)
-
-flows, links = loadOptimizer.solve(10000)
-print(flows)
-print(links)
-
-# for path in loadOptimizer.extractRoutingPath():
-#     print(path)
-# print (loadOptimizer.maxLoad.score())
-
 
 
 def computeMaximumLinkUtilization(G, srPaths ,TM):
@@ -152,6 +140,41 @@ def computeFlowTrafficLinks(G, routingSolution, trafficMatrix):
                                 linksLoad[edge] += increment
     return linksLoad
 
+
+def computeDelay(G, srPaths):
+    delayMatrix = np.zeros((G.number_of_nodes(),G.number_of_nodes()))
+    for i in range(G.number_of_nodes()):
+        for j in range(G.number_of_nodes()):
+            if i != j:
+                t0 = 0
+                for k in range(len(srPaths[i][j])-1):
+                    n = srPaths[i][j][k]
+                    m = srPaths[i][j][k + 1]
+                    paths = G.sp.pathEdges[n][m]
+                    if m != n:
+                        t1 = 0
+                        for path in paths:
+                            t2 = 0
+                            for edge in path:
+                                t2 += G.delays[edge]
+                            if t1 < t2:
+                                t1 = t2
+                        t0 += t1
+                delayMatrix[i][j] = t0
+    return delayMatrix        
+
+
+
+
 # print(computeFlowTrafficLinks(G, loadOptimizer.extractRoutingPath(), TM))
 
-    
+G = createGraph('data/abilene_tm_node.csv','data/abilene_tm_edge.csv')
+
+loadOptimizer = LoadOptimizer(sp, capacity, nNodes, nEdges)
+
+TM = np.ones((12,12))
+loadOptimizer.modifierTrafficMatrix(TM)
+
+flows, links = loadOptimizer.solve(10)
+
+print(computeDelay(G, loadOptimizer.extractRoutingPath()))
